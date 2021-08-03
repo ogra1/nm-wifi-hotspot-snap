@@ -1,0 +1,44 @@
+name: nm-wifi-hotspot
+base: core20
+version: '0.1'
+summary: A simple WiFi Hotspot
+description: |
+  Thsi snap runs a simple wifi hotspot
+
+grade: stable
+confinement: strict
+
+apps:
+  nm-wifi-hotspot:
+    command: bin/launch
+    stop-command: bin/wifi-hotspot wlan0 down
+    daemon: oneshot
+    install-mode: disable
+    environment:
+      PYTHONPATH: $SNAP/usr/lib/python3/dist-packages:$PYTHONPATH
+    plugs:
+      - network
+      - network-bind
+      - network-manager
+      - process-control
+
+parts:
+  wifi-hotspot:
+    source: https://github.com/NetworkManager/NetworkManager.git
+    source-subdir: examples/python/dbus
+    source-depth: 1
+    plugin: dump
+    override-pull: |
+      snapcraftctl pull
+      patch -p0 <$SNAPCRAFT_PROJECT_DIR/patches/wifi-hotspot.patch
+    organize:
+      wifi-hotspot.py: bin/wifi-hotspot
+    prime:
+      - -*.py
+    stage-packages:
+      - python3-dbus
+  launcher:
+    plugin: dump
+    source: scripts
+    organize:
+      launcher.sh: bin/launch

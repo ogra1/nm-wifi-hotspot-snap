@@ -1,0 +1,3 @@
+#! /bin/sh
+
+snapctl start $SNAP_NAME.$SNAP_NAME --enable

@@ -1,0 +1,5 @@
+#!/bin/sh
+
+$SNAP/bin/wifi-hotspot wlan0 down
+
+snapctl restart $SNAP_NAME.$SNAP_NAME

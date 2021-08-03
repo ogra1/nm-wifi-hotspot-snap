@@ -1,0 +1,63 @@
+--- examples/python/dbus/wifi-hotspot.py	2021-08-03 14:36:45.485021019 +0000
++++ wifi-hotspot	2021-08-03 14:33:22.135171775 +0000
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ # SPDX-License-Identifier: GPL-2.0-or-later
+ #
+ # Copyright (C) 2010 - 2012 Red Hat, Inc.
+@@ -12,23 +12,37 @@
+ #
+ 
+ import dbus, sys, time
++import subprocess
+ 
+ our_uuid = "2b0d0f1d-b79d-43af-bde1-71744625642e"
+ 
++ssid = "UbuntuCore Hotspot"
++psk = "0123456789"
++
++ssid_pipe = subprocess.Popen(['snapctl', 'get', 'ssid'], stdout=subprocess.PIPE)
++snap_ssid = ssid_pipe.stdout.readline().decode("utf-8")
++if (len(snap_ssid.strip())):
++    ssid = str(snap_ssid)
++
++psk_pipe = subprocess.Popen(['snapctl', 'get', 'psk'], stdout=subprocess.PIPE)
++snap_psk = psk_pipe.stdout.readline().decode("utf-8")
++if (len(snap_psk.strip())):
++    psk = snap_psk.strip()
++
+ s_con = dbus.Dictionary(
+     {"type": "802-11-wireless", "uuid": our_uuid, "id": "Test Hotspot"}
+ )
+ 
+ s_wifi = dbus.Dictionary(
+     {
+-        "ssid": dbus.ByteArray("My Hotspot".encode("utf-8")),
++        "ssid": dbus.ByteArray(ssid.encode("utf-8")),
+         "mode": "ap",
+         "band": "bg",
+         "channel": dbus.UInt32(1),
+     }
+ )
+ 
+-s_wsec = dbus.Dictionary({"key-mgmt": "wpa-psk", "psk": "great password"})
++s_wsec = dbus.Dictionary({"key-mgmt": "wpa-psk", "psk": psk})
+ 
+ s_ip4 = dbus.Dictionary({"method": "shared"})
+ s_ip6 = dbus.Dictionary({"method": "ignore"})
+@@ -71,7 +85,6 @@
+ if not connection_path:
+     connection_path = settings.AddConnection(con)
+ 
+-
+ if len(sys.argv) != 3:
+     usage()
+ 
+@@ -105,6 +118,7 @@
+     print("Failed to start access point")
+ elif operation == "down":
+     device.Disconnect()
++    settings_connection.Delete()
+ else:
+     usage()
