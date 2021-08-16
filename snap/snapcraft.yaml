@@ -25,6 +25,11 @@ description: |
 grade: stable
 confinement: strict
 
+architectures:
+  - build-on: amd64
+  - build-on: armhf
+  - build-on: arm64
+
 apps:
   nm-wifi-hotspot:
     command: bin/launch
