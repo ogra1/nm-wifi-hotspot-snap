@@ -1,7 +1,7 @@
 #!/bin/sh
 
-$SNAP/bin/wifi-hotspot wlan0 down
-
 if snapctl is-connected network-manager; then
+    $SNAP/bin/wifi-hotspot wlan0 down
+
     snapctl restart $SNAP_NAME.$SNAP_NAME
 fi
